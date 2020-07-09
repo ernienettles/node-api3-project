@@ -19,14 +19,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', validatePostId, async (req, res) => {
   // do your magic!
-  try {
-    const { id } = req.params;
-    const post = await postDb.getById(id)
-
-    res.status(200).json(post)
-  } catch {
-    res.status(500).json({ error: "The post information could not be retrieved." });
-  }
+  res.status(200).json(req.post)
 });
 
 router.delete('/:id', validatePostId, async (req, res) => {
@@ -60,35 +53,14 @@ router.put('/:id', validatePostId, async (req, res) => {
 
 // custom middleware
 
-async function validatePost(req, res, next) {
-  try {
-    const body = req.body;
-    if(body.text && body) {
-      next()
-    } else if (!body) {
-      res.status(400).json({ message: "missing user data" })
-    } else if (!body.text) {
-      res.status(400).json({ message: "missing required text field" })
-    }
-  } catch (error) {
-    res.status(500).json({ error: "There was an error while retrieving the user id" })
+async function validatePostId(req, res, next) {
+  const post = await db.getById(req.params.id);
+  if (!post) {
+    return res.status(404).json({ message: "invalid post id" });
   }
+  req.post = req.params.id;
+  next();
 }
 
-function validatePostId(req, res, next) {
-  // do your magic!
-  try {
-    const { id } = req.params;
-    const post = await userDb.getById(id)
-    if (post) {
-      post = req.post;
-      next();
-    } else {
-      res.status(400).json({ message: "invalid post id" })
-    }
-  } catch (error) {
-    res.status(500).json({ error: "There was an error while retrieving the post id" })
-  }
-}
 
 module.exports = router;
