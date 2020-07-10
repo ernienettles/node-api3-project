@@ -8,7 +8,7 @@ const postDb = require('../posts/postDb')
 router.post('/', validateUser, async (req, res) => {
   // do your magic!
   try {
-    const user = await userDb.insert(user);
+    const user = await userDb.insert(req.body);
 
     res.status(200).json(user);
   } catch(error) {
@@ -90,10 +90,12 @@ router.put('/:id', validateUserId, validateUser, async (req, res) => {
 
 async function validateUserId(req, res, next) {
   try {
-    const user = await db.getById(req.params.id);
+    const user = await userDb.getById(req.params.id);
+    console.log(req.params.id)
     if (!user) {
       return res.status(404).json({ message: "invalid user id" });
     }
+    console.log(user)
     req.user = user;
     next();
   } catch(err) {
